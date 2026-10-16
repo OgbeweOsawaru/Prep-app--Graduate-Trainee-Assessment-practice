@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prep App</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <section id="start" class="view">
+    <h1>Prep App</h1>
+    <p>60 questions &middot; 60 minutes &middot; numerical, verbal and critical reasoning</p>
+    <button id="startBtn" class="primary">Start test</button>
+    <p id="startMsg" class="msg"></p>
+  </section>
+
+  <section id="test" class="view" hidden>
+    <header class="bar">
+      <span id="section"></span>
+      <span id="progress"></span>
+      <span id="timer">60:00</span>
+    </header>
+    <div id="passage" class="passage" hidden></div>
+    <p id="qtext" class="qtext"></p>
+    <div id="options"></div>
+    <div class="controls">
+      <button id="prev">Previous</button>
+      <button id="flag">Flag for review</button>
+      <button id="next">Next</button>
+    </div>
+    <nav id="nav" aria-label="Question navigator"></nav>
+    <button id="submitBtn" class="primary">Submit test</button>
+    <p id="testMsg" class="msg"></p>
+  </section>
+
+  <section id="results" class="view" hidden>
+    <h1>Results</h1>
+    <p id="overall" class="big"></p>
+    <p id="taken"></p>
+    <div id="secs"></div>
+    <button id="reviewBtn" class="primary">Review answers</button>
+    <button id="again">Take another test</button>
+  </section>
+  <section id="review" class="view" hidden>
+  <header class="bar">
+    <button id="backBtn">&larr; Results</button>
+    <span id="reviewCount"></span>
+  </header>
+  <div class="tabs">
+    <button id="tabMissed" class="tab">Missed &amp; skipped</button>
+    <button id="tabAll" class="tab">All</button>
+  </div>
+  <div id="reviewList"></div>
+  </section>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
