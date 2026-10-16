@@ -5,6 +5,10 @@ from datetime import datetime, timedelta, timezone
 import config
 from uuid import uuid4
 from schemas import Question
+from sqlalchemy.orm import Session
+from models import Attempt as AttemptModel, AttemptQuestion
+
+bank = load_bank()
 def build_test(bank: list[Question]):
     build=[]
     for i in config.BLUEPRINT:

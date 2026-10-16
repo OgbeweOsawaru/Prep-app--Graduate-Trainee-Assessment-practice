@@ -1,4 +1,6 @@
 .venv/
 __pycache__/
-data/questions.csv
+prep.db
+.env
 data/bad.csv
+*.db
