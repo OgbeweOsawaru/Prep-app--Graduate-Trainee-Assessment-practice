@@ -54,7 +54,7 @@ def find_user_attempts(email:str, db: Session = Depends(get_db)):
     .where(AttemptModel.user_id == user.id)
 )
     return user.email,total
-@router.get("/reset_attempts")
+@router.delete("/reset_attempts")
 def reset_user_attempts(email:str, db: Session = Depends(get_db)):
     user = db.scalar(select(User).where(User.email == email))
     if not user:
