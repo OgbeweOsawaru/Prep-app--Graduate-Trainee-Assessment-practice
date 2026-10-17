@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel,Field,EmailStr,ConfigDict
 
 # Allowed values. If you ever rename a section, change it here AND in config.py.
 Section = Literal["numerical", "verbal", "critical"]
@@ -47,8 +47,25 @@ class StartResponse(BaseModel):
     duration_seconds: int
     server_time: datetime
     questions: list[PublicQuestion]
+    
 
+# Register 
+class RegisterRequest(BaseModel):
+    username:str= Field(min_length=1, max_length=50)
+    email:EmailStr=Field(max_length=120)
+    password:str=Field(min_length=4,max_length=120)
+class UserResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    username:str= Field(min_length=1, max_length=50)
+    email:EmailStr=Field(max_length=120)
+    id:int
+class LoginRequest(BaseModel):
+    email:EmailStr=Field(max_length=120)
+    password:str=Field(max_length=120)
 
+class TokenResponse(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
 # ---------- Submit ----------
 
 class SubmitRequest(BaseModel):

@@ -8,11 +8,23 @@
 </head>
 <body>
 <main>
+  <section id="auth" class="view" hidden>
+    <h1>Prep App</h1>
+    <p>Log in, or register to start.</p>
+    <input id="username" placeholder="Username (register only)" autocomplete="username">
+    <input id="email" type="email" placeholder="Email" autocomplete="email">
+    <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <button id="loginBtn" class="primary">Log in</button>
+    <button id="registerBtn">Register</button>
+    <p id="authMsg" class="msg"></p>
+  </section>
+
   <section id="start" class="view">
     <h1>Prep App</h1>
     <p>60 questions &middot; 60 minutes &middot; numerical, verbal and critical reasoning</p>
     <button id="startBtn" class="primary">Start test</button>
     <p id="startMsg" class="msg"></p>
+    <button id="logoutBtn">Log out</button>
   </section>
 
   <section id="test" class="view" hidden>
@@ -42,16 +54,17 @@
     <button id="reviewBtn" class="primary">Review answers</button>
     <button id="again">Take another test</button>
   </section>
+
   <section id="review" class="view" hidden>
-  <header class="bar">
-    <button id="backBtn">&larr; Results</button>
-    <span id="reviewCount"></span>
-  </header>
-  <div class="tabs">
-    <button id="tabMissed" class="tab">Missed &amp; skipped</button>
-    <button id="tabAll" class="tab">All</button>
-  </div>
-  <div id="reviewList"></div>
+    <header class="bar">
+      <button id="backBtn">&larr; Results</button>
+      <span id="reviewCount"></span>
+    </header>
+    <div class="tabs">
+      <button id="tabMissed" class="tab">Missed &amp; skipped</button>
+      <button id="tabAll" class="tab">All</button>
+    </div>
+    <div id="reviewList"></div>
   </section>
 </main>
 <script src="app.js"></script>

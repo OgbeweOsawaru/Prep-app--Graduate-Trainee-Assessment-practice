@@ -4,11 +4,13 @@ import config
 import models  # noqa: F401  (imported so Base knows about the tables)
 from database import Base, engine
 from routers.tests import router
+from routers.auth import router as auth
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Prep App")
 app.include_router(router)
+app.include_router(auth)
 
 # Keep this last: a mount at "/" catches every path the routes above don't match.
 app.mount(

@@ -1,5 +1,6 @@
 const $ = (id) => document.getElementById(id);
 const KEY = "prep-attempt";
+const TOKEN_KEY = "prep-token";
 const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 // The server sends microseconds; trim to milliseconds so every browser parses it.
 const ms = (s) => Date.parse(s.replace(/(\.\d{3})\d+/, "$1"));
@@ -9,17 +10,41 @@ let tick = null;
 let busy = false;
 let R = null;       // results from the server, kept for the review screen
 let tab = "missed"; // which review tab is open
+
 function show(name) {
   document.querySelectorAll(".view").forEach((v) => (v.hidden = v.id !== name));
 }
 
+// ---------- token ----------
+function getToken() {
+  try { return localStorage.getItem(TOKEN_KEY); } catch (e) { return null; }
+}
+function setToken(t) {
+  try { localStorage.setItem(TOKEN_KEY, t); } catch (e) {}
+}
+function clearToken() {
+  try { localStorage.removeItem(TOKEN_KEY); } catch (e) {}
+}
+const jsonPost = (obj) => ({
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify(obj),
+});
+
+// Sends the token with every request. Errors carry status, detail and code.
 async function api(path, opts) {
-  const r = await fetch(path, opts);
+  opts = opts || {};
+  const headers = { ...(opts.headers || {}) };
+  const token = getToken();
+  if (token) headers.Authorization = "Bearer " + token;
+  const r = await fetch(path, { ...opts, headers });
   let body = null;
   try { body = await r.json(); } catch (e) {}
   if (!r.ok) {
     const err = new Error("request failed");
-    err.code = body && body.detail && body.detail.code;
+    err.status = r.status;
+    err.detail = body && body.detail;
+    err.code = err.detail && err.detail.code;
     throw err;
   }
   return body;
@@ -30,6 +55,44 @@ function save() {
 }
 function clearSaved() {
   try { localStorage.removeItem(KEY); } catch (e) {}
+}
+
+// ---------- auth ----------
+function authMessage(e) {
+  if (e.status === 401) return "Incorrect email or password.";
+  if (e.status === 400 && typeof e.detail === "string") return e.detail;
+  if (e.status === 422) return "Check your details: a username, a valid email, and a password of at least 4 characters.";
+  return "Could not reach the server. Please try again.";
+}
+
+async function authenticate(isRegister) {
+  const username = $("username").value.trim();
+  const email = $("email").value.trim();
+  const password = $("password").value;
+  $("authMsg").textContent = "";
+  $("loginBtn").disabled = true;
+  $("registerBtn").disabled = true;
+  try {
+    if (isRegister) await api("/auth/register", jsonPost({ username, email, password }));
+    const t = await api("/auth/login", jsonPost({ email, password }));
+    setToken(t.access_token);
+    $("password").value = "";
+    if (S) begin(); // a test was in progress before the login screen appeared
+    else show("start");
+  } catch (e) {
+    $("authMsg").textContent = authMessage(e);
+  }
+  $("loginBtn").disabled = false;
+  $("registerBtn").disabled = false;
+}
+
+function logout() {
+  clearToken();
+  clearSaved();
+  clearInterval(tick);
+  S = null;
+  $("authMsg").textContent = "";
+  show("auth");
 }
 
 // ---------- start ----------
@@ -50,7 +113,15 @@ async function startTest() {
     save();
     begin();
   } catch (e) {
-    $("startMsg").textContent = "Could not start the test. Please try again.";
+    if (e.status === 401) {
+      clearToken();
+      show("auth");
+      $("authMsg").textContent = "Please log in to start.";
+    } else if (e.status === 402) {
+      $("startMsg").textContent = "You have used all your free tests.";
+    } else {
+      $("startMsg").textContent = "Could not start the test. Please try again.";
+    }
   }
   $("startBtn").disabled = false;
 }
@@ -158,11 +229,7 @@ async function submit(auto) {
   $("testMsg").textContent = "Submitting...";
   try {
     try {
-      await api("/tests/" + S.id + "/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ answers: S.answers }),
-      });
+      await api("/tests/" + S.id + "/submit", jsonPost({ answers: S.answers }));
     } catch (e) {
       if (e.code !== "already_submitted") throw e; // already in: just fetch the results
     }
@@ -176,10 +243,17 @@ async function submit(auto) {
 }
 
 function handleError(e) {
+  if (e.status === 401) {
+    // Logged out or token expired. The test stays saved, so logging in resumes it.
+    clearToken();
+    show("auth");
+    $("authMsg").textContent = "Your login expired. Log in again to continue.";
+    return;
+  }
   if (e.code === "deadline_passed") {
     fail("Time ran out before your answers reached the server, so this attempt could not be submitted.");
   } else if (e.code === "attempt_not_found") {
-    fail("This session was lost (the server may have restarted). Please start a new test.");
+    fail("This test could not be found on the server. Please start a new test.");
   } else {
     // network trouble: keep everything, let the person retry
     $("testMsg").textContent = "Could not reach the server. Your answers are kept. Press Submit to try again.";
@@ -209,6 +283,7 @@ function showResults(r) {
     box.appendChild(d);
   });
 }
+
 // ---------- review ----------
 function el(tag, cls, text) {
   const e = document.createElement(tag);
@@ -278,8 +353,12 @@ function reviewCard(x) {
   }
   return card;
 }
+
 // ---------- wiring ----------
 $("startBtn").onclick = startTest;
+$("loginBtn").onclick = () => authenticate(false);
+$("registerBtn").onclick = () => authenticate(true);
+$("logoutBtn").onclick = logout;
 $("prev").onclick = () => go(S.i - 1);
 $("next").onclick = () => go(S.i + 1);
 $("flag").onclick = toggleFlag;
@@ -296,14 +375,15 @@ document.addEventListener("keydown", (e) => {
   else if (e.key.length === 1 && "abcde".includes(e.key.toLowerCase())) choose(e.key.toLowerCase());
 });
 
-// Restore an unfinished test after a refresh.
+// ---------- startup ----------
+// Restore an unfinished test after a refresh, but only for someone who is logged in.
 try {
   const saved = localStorage.getItem(KEY);
-  if (saved) {
-    S = JSON.parse(saved);
-    begin();
-  }
+  if (saved) S = JSON.parse(saved);
 } catch (e) {
   clearSaved();
   S = null;
 }
+if (!getToken()) show("auth");
+else if (S) begin();
+else show("start");

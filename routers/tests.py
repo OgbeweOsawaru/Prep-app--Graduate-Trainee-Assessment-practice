@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from models import Attempt as AttemptModel, AttemptQuestion,Answer
+from models import Attempt as AttemptModel, AttemptQuestion,Answer,User
 from fastapi import APIRouter, HTTPException,Depends
 from sqlalchemy.orm import Session
 from database import get_db
@@ -8,7 +8,8 @@ from attempt import Attempt, create_attempt, get_attempt
 from bank import load_bank
 from grader import grade
 from schemas import ResultsResponse, StartResponse, SubmitRequest, SubmitResponse
-
+from deps import get_current_user
+from sqlalchemy import select, func
 router = APIRouter(prefix="/tests", tags=["tests"])
 
 # Loaded once, when the app starts. A broken CSV stops the app right here.
@@ -28,12 +29,21 @@ def get_attempt_or_404(attempt_id: str) -> Attempt:
 
 
 @router.post("", response_model=StartResponse, status_code=201)
-def start_test(db: Session = Depends(get_db)):
+def start_test(current_user: User = Depends(get_current_user),db: Session = Depends(get_db)):
+    started = db.scalar(
+    select(func.count())
+    .select_from(AttemptModel)
+    .where(AttemptModel.user_id == current_user.id)
+    )
+    if started>= config.MAX_FREE_TESTS:
+        raise api_error(402, "attempt_not_allowed", "No more free attempts.")
+    
     attempt = create_attempt(bank)
     db_attempt = AttemptModel(
     id=attempt.attempt_id,
     started_at=attempt.started_at,
-    deadline=attempt.deadline,)
+    deadline=attempt.deadline,
+    user_id= current_user.id)
     for position, q in enumerate(attempt.questions, start=1):
         db_attempt.questions.append(
             AttemptQuestion(position=position, question_id=q.id)
@@ -52,11 +62,15 @@ def start_test(db: Session = Depends(get_db)):
 
 
 @router.post("/{attempt_id}/submit", response_model=SubmitResponse)
-def submit_test(attempt_id: str, body: SubmitRequest, db: Session = Depends(get_db)):
+def submit_test(
+    attempt_id: str,
+    body: SubmitRequest,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    ):
     db_attempt = db.get(AttemptModel, attempt_id)
-    if db_attempt is None:
+    if db_attempt is None or db_attempt.user_id != current_user.id:
         raise api_error(404, "attempt_not_found", "No attempt with that id.")
-    
 
     # 1. Already handed in?
     if db_attempt.submitted_at is not None:
@@ -86,11 +100,14 @@ def submit_test(attempt_id: str, body: SubmitRequest, db: Session = Depends(get_
 
 
 @router.get("/{attempt_id}/results", response_model=ResultsResponse)
-def get_results(attempt_id: str, db: Session = Depends(get_db)):
+def get_results(
+    attempt_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    ):
     db_attempt = db.get(AttemptModel, attempt_id)
-    if db_attempt is None:
+    if db_attempt is None or db_attempt.user_id != current_user.id:
         raise api_error(404, "attempt_not_found", "No attempt with that id.")
-
     # Refuse until submitted, otherwise this endpoint would leak the answers.
     if db_attempt.submitted_at is None:
         raise api_error(409, "not_submitted", "Submit the test to see results.")

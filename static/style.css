@@ -53,3 +53,8 @@ button.primary { background:var(--accent); border-color:var(--accent); color:#ff
 .tag { display:block; margin-top:4px; font-size:.8rem; font-weight:600; }
 .rexp { margin-top:14px; padding:12px 14px; background:var(--bg); border-left:4px solid var(--accent); border-radius:4px; }
 .rexp p { margin:6px 0 0; white-space:pre-wrap; }
+
+input { display:block; width:100%; margin:0 0 10px; padding:12px 14px; font:inherit; color:var(--ink); background:#fff; border:1px solid var(--line); border-radius:8px; }
+input:focus { outline:3px solid #bfd0ff; border-color:var(--accent); }
+#auth button { margin-right:8px; }
+#logoutBtn { margin-top:24px; color:var(--muted); }
