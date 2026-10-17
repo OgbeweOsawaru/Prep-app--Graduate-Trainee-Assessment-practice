@@ -4,6 +4,7 @@ from datetime import datetime, timedelta, timezone
 import jwt
 
 SECRET_KEY = os.getenv("SECRET_KEY", "dev-only-change-me")
+ADMIN_KEY = os.getenv("ADMIN_KEY")
 from pwdlib import PasswordHash
 # Create a PasswordHash instance with recommended settings
 ph = PasswordHash.recommended()

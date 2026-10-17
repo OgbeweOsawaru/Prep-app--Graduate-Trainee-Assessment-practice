@@ -41,6 +41,7 @@ class Attempt(Base):
     )
     answers: Mapped[list[Answer]] = relationship(
         back_populates="attempt",
+        cascade="all, delete-orphan",
     )
     user:Mapped[User|None]=relationship(back_populates="user_attempts")
 
