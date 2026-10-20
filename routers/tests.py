@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException,Depends
 from sqlalchemy.orm import Session
 from database import get_db
 import config
-from attempt import Attempt, create_attempt, get_attempt
+from attempt import Attempt, create_attempt, get_attempt,get_seen_ids
 from bank import load_bank
 from grader import grade
 from schemas import ResultsResponse, StartResponse, SubmitRequest, SubmitResponse
@@ -37,8 +37,8 @@ def start_test(current_user: User = Depends(get_current_user),db: Session = Depe
     )
     if started>= config.MAX_FREE_TESTS:
         raise api_error(402, "attempt_not_allowed", "No more free attempts.")
-    
-    attempt = create_attempt(bank)
+    seen=get_seen_ids(db, current_user.id)
+    attempt = create_attempt(bank,seen)
     db_attempt = AttemptModel(
     id=attempt.attempt_id,
     started_at=attempt.started_at,
