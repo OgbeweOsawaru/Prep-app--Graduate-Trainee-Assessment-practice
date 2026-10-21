@@ -56,7 +56,13 @@ class AttemptQuestion(Base):
     question_id: Mapped[str] = mapped_column(String)
 
     attempt: Mapped[Attempt] = relationship(back_populates="questions")
-
+    
+class SeenQuestions(Base):
+    __tablename__="seen_questions"
+    id:Mapped[int]= mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    question_id: Mapped[str] = mapped_column(String)
+    
 
 class Answer(Base):
     __tablename__ = "answers"

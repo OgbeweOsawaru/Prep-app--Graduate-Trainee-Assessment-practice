@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from models import Attempt as AttemptModel, AttemptQuestion,Answer,User
+from models import Attempt as AttemptModel, AttemptQuestion,Answer,User,SeenQuestions
 from fastapi import APIRouter, HTTPException,Depends
 from sqlalchemy.orm import Session
 from database import get_db
@@ -48,6 +48,13 @@ def start_test(current_user: User = Depends(get_current_user),db: Session = Depe
         db_attempt.questions.append(
             AttemptQuestion(position=position, question_id=q.id)
         )
+    for row in attempt.questions:
+        if row.id not in seen:
+            seen_rows=SeenQuestions(
+                user_id=current_user.id,
+                question_id=row.id
+            )
+            db.add(seen_rows)
     db.add(db_attempt)
     db.commit()
     return StartResponse(

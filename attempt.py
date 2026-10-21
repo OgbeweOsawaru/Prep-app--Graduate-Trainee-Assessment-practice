@@ -8,16 +8,15 @@ from schemas import Question
 from sqlalchemy.orm import Session
 from database import SessionLocal
 from sqlalchemy import select
-from models import Attempt as AttemptModel, AttemptQuestion
+from models import Attempt as AttemptModel, AttemptQuestion,SeenQuestions
 
 bank = load_bank()
 def get_seen_ids(db:Session,user_id:int):
-    statement=select(AttemptModel).where(AttemptModel.user_id==user_id)
+    statement=select(SeenQuestions).where(SeenQuestions.user_id==user_id)
     result=db.scalars(statement).all()
     question_id=[]
-    for attempt in result:
-        for t in attempt.questions:
-            question_id.append(t.question_id)
+    for question in result:
+        question_id.append(question.question_id)
     return set(question_id)
 def build_test(bank: list[Question], seen):
     build = []
@@ -63,8 +62,10 @@ def create_attempt(bank: list[Question],seen) -> Attempt:
 def get_attempt(attempt_id: str) -> Attempt | None:
     return _attempts.get(attempt_id)
 if __name__ == "__main__":
+   
     db=SessionLocal()
-    print(get_seen_ids(db,1))
+    #print(get_seen_ids(db,1))
+    print(len(get_seen_ids(db,4)))
     db.close()
     """bank = load_bank()
     attempt = create_attempt(bank)
