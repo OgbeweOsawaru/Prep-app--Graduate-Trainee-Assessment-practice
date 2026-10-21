@@ -73,6 +73,9 @@ async function authenticate(isRegister) {
   $("loginBtn").disabled = true;
   $("registerBtn").disabled = true;
   try {
+    if (isRegister) {
+      clearSaved();
+      S = null;}
     if (isRegister) await api("/auth/register", jsonPost({ username, email, password }));
     const t = await api("/auth/login", jsonPost({ email, password }));
     setToken(t.access_token);
