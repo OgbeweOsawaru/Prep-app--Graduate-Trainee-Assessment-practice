@@ -66,24 +66,27 @@ function authMessage(e) {
 }
 
 async function authenticate(isRegister) {
-  const username = $("username").value.trim();
-  const email = $("email").value.trim();
-  const password = $("password").value;
-  $("authMsg").textContent = "";
+  const username = isRegister ? $("regUsername").value.trim() : "";
+  const email = (isRegister ? $("regEmail") : $("email")).value.trim();
+  const password = (isRegister ? $("regPassword") : $("password")).value;
+  const msg = isRegister ? $("regMsg") : $("authMsg");
+  msg.textContent = "";
   $("loginBtn").disabled = true;
   $("registerBtn").disabled = true;
   try {
     if (isRegister) {
       clearSaved();
-      S = null;}
-    if (isRegister) await api("/auth/register", jsonPost({ username, email, password }));
+      S = null;
+      await api("/auth/register", jsonPost({ username, email, password }));
+    }
     const t = await api("/auth/login", jsonPost({ email, password }));
     setToken(t.access_token);
     $("password").value = "";
+    $("regPassword").value = "";
     if (S) begin(); // a test was in progress before the login screen appeared
     else show("start");
   } catch (e) {
-    $("authMsg").textContent = authMessage(e);
+    msg.textContent = authMessage(e);
   }
   $("loginBtn").disabled = false;
   $("registerBtn").disabled = false;
@@ -361,6 +364,8 @@ function reviewCard(x) {
 $("startBtn").onclick = startTest;
 $("loginBtn").onclick = () => authenticate(false);
 $("registerBtn").onclick = () => authenticate(true);
+$("showRegister").onclick = (e) => { e.preventDefault(); $("authMsg").textContent = ""; show("register"); };
+$("showLogin").onclick = (e) => { e.preventDefault(); $("regMsg").textContent = ""; show("auth"); };
 $("logoutBtn").onclick = logout;
 $("prev").onclick = () => go(S.i - 1);
 $("next").onclick = () => go(S.i + 1);

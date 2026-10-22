@@ -8,15 +8,24 @@
 </head>
 <body>
 <main>
-  <section id="auth" class="view" hidden>
+    <section id="auth" class="view" hidden>
     <h1>Prep App</h1>
-    <p>Log in, or register to start.</p>
-    <input id="username" placeholder="Username (register only)" autocomplete="username">
+    <p>Log in to start.</p>
     <input id="email" type="email" placeholder="Email" autocomplete="email">
     <input id="password" type="password" placeholder="Password" autocomplete="current-password">
     <button id="loginBtn" class="primary">Log in</button>
-    <button id="registerBtn">Register</button>
     <p id="authMsg" class="msg"></p>
+    <p>New here? <a href="#" id="showRegister">Create an account</a></p>
+  </section>
+
+  <section id="register" class="view" hidden>
+    <h1>Create account</h1>
+    <input id="regUsername" placeholder="Username" autocomplete="username">
+    <input id="regEmail" type="email" placeholder="Email" autocomplete="email">
+    <input id="regPassword" type="password" placeholder="Password (at least 4 characters)" autocomplete="new-password">
+    <button id="registerBtn" class="primary">Create account</button>
+    <p id="regMsg" class="msg"></p>
+    <p>Already have an account? <a href="#" id="showLogin">Log in</a></p>
   </section>
 
   <section id="start" class="view">
