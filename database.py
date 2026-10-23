@@ -12,6 +12,7 @@ is_sqlite = SQLALCHEMY_DATABASE_URL.startswith("sqlite")
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={"check_same_thread": False} if is_sqlite else {},
+    pool_pre_ping=True
 )
 
 if is_sqlite:
