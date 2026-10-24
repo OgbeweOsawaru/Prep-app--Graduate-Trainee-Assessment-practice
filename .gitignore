@@ -6,4 +6,3 @@ prep.db
 data/bad.csv
 *.db
 SQL_sheet.md
-routers/student.py
