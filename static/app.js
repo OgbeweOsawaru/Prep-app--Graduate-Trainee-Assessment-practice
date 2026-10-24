@@ -102,11 +102,17 @@ function logout() {
 }
 
 // ---------- start ----------
-async function startTest() {
-  $("startBtn").disabled = true;
+function setStartButtons(off) {
+  $("startBtn").disabled = off;
+  document.querySelectorAll(".sectionBtn").forEach((b) => (b.disabled = off));
+}
+
+async function startTest(section) {
+  setStartButtons(true);
   $("startMsg").textContent = "";
   try {
-    const d = await api("/tests", { method: "POST" });
+    const path = section ? "/tests/section/" + section : "/tests";
+    const d = await api(path, { method: "POST" });
     S = {
       id: d.attempt_id,
       deadline: ms(d.deadline),
@@ -129,7 +135,7 @@ async function startTest() {
       $("startMsg").textContent = "Could not start the test. Please try again.";
     }
   }
-  $("startBtn").disabled = false;
+  setStartButtons(false);
 }
 
 function begin() {
@@ -361,7 +367,10 @@ function reviewCard(x) {
 }
 
 // ---------- wiring ----------
-$("startBtn").onclick = startTest;
+$("startBtn").onclick = () => startTest();
+document.querySelectorAll(".sectionBtn").forEach((b) => {
+  b.onclick = () => startTest(b.dataset.section);
+});
 $("loginBtn").onclick = () => authenticate(false);
 $("registerBtn").onclick = () => authenticate(true);
 $("showRegister").onclick = (e) => { e.preventDefault(); $("authMsg").textContent = ""; show("register"); };

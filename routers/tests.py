@@ -4,7 +4,7 @@ from fastapi import APIRouter, HTTPException,Depends
 from sqlalchemy.orm import Session
 from database import get_db
 import config
-from attempt import Attempt, create_attempt, get_attempt,get_seen_ids
+from attempt import Attempt, create_attempt, get_attempt,get_seen_ids,create_section_attempt
 from bank import load_bank
 from grader import grade
 from schemas import ResultsResponse, StartResponse, SubmitRequest, SubmitResponse
@@ -129,4 +129,37 @@ def get_results(
         overall=overall,
         sections=sections,
         review=review,
+    )
+
+
+@router.post("/section/{section}", response_model=StartResponse, status_code=201)
+def start_test_section(section,current_user: User = Depends(get_current_user),db: Session = Depends(get_db)):
+    seen=get_seen_ids(db, current_user.id)
+    attempt = create_section_attempt(bank,seen,section)
+    db_attempt = AttemptModel(
+    id=attempt.attempt_id,
+    started_at=attempt.started_at,
+    deadline=attempt.deadline,
+    user_id= current_user.id)
+    for position, q in enumerate(attempt.questions, start=1):
+        db_attempt.questions.append(
+            AttemptQuestion(position=position, question_id=q.id)
+        )
+    for row in attempt.questions:
+        if row.id not in seen:
+            seen_rows=SeenQuestions(
+                user_id=current_user.id,
+                question_id=row.id
+            )
+            db.add(seen_rows)
+    db.add(db_attempt)
+    db.commit()
+    return StartResponse(
+        attempt_id=attempt.attempt_id,
+        started_at=attempt.started_at,
+        deadline=attempt.deadline,
+        duration_seconds=config.TIME_LIMIT_SECONDS,
+        server_time=datetime.now(timezone.utc),
+        # to_public() strips the answer and explanation
+        questions=[q.to_public() for q in attempt.questions],
     )

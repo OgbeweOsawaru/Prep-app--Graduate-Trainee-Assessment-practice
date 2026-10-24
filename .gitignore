@@ -5,3 +5,5 @@ prep.db
 .env
 data/bad.csv
 *.db
+SQL_sheet.md
+routers/student.py

@@ -35,7 +35,8 @@ def grade(questions:list[Question], answers:dict):
     overall_correct=sum(correct.values())
     section_score={}
     for (k,v), (k2,v2) in zip(correct.items(), totals.items()):
-        section_score[k]=make_score(v,v2)
+        if v2>0:
+            section_score[k]=make_score(v,v2)
     return make_score(overall_correct,overall_total),section_score,review_list
 
 if __name__ == "__main__":

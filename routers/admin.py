@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from models import Attempt as AttemptModel, AttemptQuestion,Answer
+from models import Attempt as AttemptModel, AttemptQuestion,Answer,SeenQuestions
 from fastapi import APIRouter, HTTPException,Depends,status
 from sqlalchemy.orm import Session
 from sqlalchemy import select,func
@@ -68,3 +68,12 @@ def reset_user_attempts(email:str, db: Session = Depends(get_db)):
     )
     db.commit()
     return total
+@router.delete("/reset_seen")
+def reset_user_seen(id:int, db: Session = Depends(get_db)):
+    user_seen = db.scalars(select(SeenQuestions).where(SeenQuestions.user_id == id)).all()
+    if not user_seen:
+        raise HTTPException(status_code=404,detail="No seens found")
+    for i in user_seen:    
+        db.delete(i)
+    db.commit()
+    

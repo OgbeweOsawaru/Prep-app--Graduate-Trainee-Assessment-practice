@@ -30,7 +30,17 @@ def build_test(bank: list[Question], seen):
             build.extend(unseen)
             build.extend(random.sample(seen_rows, need - len(unseen)))
     return build
-
+def build_test_section(bank: list[Question],seen, section):
+    build = []
+    need=10
+    unseen = [row for row in bank if row.section == section and row.id not in seen]
+    seen_rows = [row for row in bank if row.section == section and row.id in seen]
+    if len(unseen) >= need:
+        build.extend(random.sample(unseen, need))
+    else:
+        build.extend(unseen)
+        build.extend(random.sample(seen_rows, need - len(unseen)))
+    return build
 
 @dataclass
 class Attempt:
@@ -57,7 +67,17 @@ def create_attempt(bank: list[Question],seen) -> Attempt:
     )
     _attempts[attempt.attempt_id] = attempt
     return attempt
- 
+def create_section_attempt(bank: list[Question],seen,section) -> Attempt:
+    now = datetime.now(timezone.utc)
+    attempt = Attempt(
+        attempt_id=str(uuid4()),  # unguessable, because it acts as a password
+        questions=build_test_section(bank,seen,section),
+        started_at=now,
+        deadline=now + timedelta(seconds=config.SECTION_TIME_LIMIT),
+    )
+    _attempts[attempt.attempt_id] = attempt
+    return attempt
+
  
 def get_attempt(attempt_id: str) -> Attempt | None:
     return _attempts.get(attempt_id)
