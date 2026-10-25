@@ -2,8 +2,7 @@
 
 A practice site for graduate trainee aptitude tests. It gives candidates timed practice in numerical, verbal and critical reasoning, then shows their scores and explains every answer.
 
-**Live app:** ADD-YOUR-LIVE-LINK-HERE
-
+**Live app:** https://prep-app-tuqf.onrender.com
 ## What it does
 
 - **Full practice test:** 60 questions in 60 minutes, drawn from three sections: numerical, verbal and critical reasoning.
@@ -51,4 +50,4 @@ Early stage and still improving. Planned next:
 
 ## Feedback
 
-Found a wrong answer or a bug? Use the feedback link inside the .
+Found a wrong answer or a bug? Use the feedback link inside the app.
