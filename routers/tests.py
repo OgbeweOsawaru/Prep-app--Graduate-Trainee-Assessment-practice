@@ -105,7 +105,16 @@ def submit_test(
     db.commit()
     return SubmitResponse(status="submitted")
 
-
+@router.post("/{attempt_id}/progress")
+def see_progress(
+    attempt_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+    ):
+    db_attempt = db.get(AttemptModel, attempt_id)
+    if db_attempt is None or db_attempt.user_id != current_user.id:
+        raise api_error(404, "attempt_not_found", "No attempt with that id.")
+    return {"status":"ok"}
 @router.get("/{attempt_id}/results", response_model=ResultsResponse)
 def get_results(
     attempt_id: str,

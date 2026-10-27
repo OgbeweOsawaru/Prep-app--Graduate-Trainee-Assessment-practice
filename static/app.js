@@ -217,6 +217,7 @@ function choose(k) {
   if (S.answers[id] === k) delete S.answers[id]; // tap again to deselect
   else S.answers[id] = k;
   save();
+  api("/tests/" + S.id + "/progress", { method: "POST" }).catch(() => {});
   render();
 }
 
