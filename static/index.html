@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Prep App</title>
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
 <main>
@@ -13,9 +13,11 @@
     <p>Log in to start.</p>
     <input id="email" type="email" placeholder="Email" autocomplete="email">
     <input id="password" type="password" placeholder="Password" autocomplete="current-password">
+    <label class="showpw"><input type="checkbox" id="showPw"> Show password</label>
     <button id="loginBtn" class="primary">Log in</button>
     <p id="authMsg" class="msg"></p>
     <p>New here? <a href="#" id="showRegister">Create an account</a></p>
+    <p>Locked out? <a href="https://x.com/HeisOgb" target="_blank" rel="noopener">Message me on X</a> and I'll reset your password.</p>
   </section>
 
   <section id="register" class="view" hidden>
@@ -23,6 +25,7 @@
     <input id="regUsername" placeholder="Username" autocomplete="username">
     <input id="regEmail" type="email" placeholder="Email" autocomplete="email">
     <input id="regPassword" type="password" placeholder="Password (at least 4 characters)" autocomplete="new-password">
+    <label class="showpw"><input type="checkbox" id="showRegPw"> Show password</label>
     <button id="registerBtn" class="primary">Create account</button>
     <p id="regMsg" class="msg"></p>
     <p>Already have an account? <a href="#" id="showLogin">Log in</a></p>
@@ -92,6 +95,6 @@
     <div id="reviewList"></div>
   </section>
 </main>
-<script src="app.js?v=3"></script>
+<script src="app.js?v=4"></script>
 </body>
 </html>

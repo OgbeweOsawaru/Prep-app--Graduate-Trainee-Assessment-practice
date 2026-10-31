@@ -10,8 +10,8 @@ import config
 from attempt import Attempt, create_attempt, get_attempt
 from bank import load_bank
 from grader import grade
-from schemas import RegisterRequest,UserResponse,LoginRequest,TokenResponse
-from security import ADMIN_KEY
+from schemas import RegisterRequest,UserResponse,LoginRequest,TokenResponse,ResetPassword
+from security import ADMIN_KEY,hash_password
 from fastapi import Header
 
 def require_admin(x_admin_key: str | None = Header(default=None)):
@@ -76,4 +76,13 @@ def reset_user_seen(id:int, db: Session = Depends(get_db)):
     for i in user_seen:    
         db.delete(i)
     db.commit()
+
+@router.post("/reset_password")
+def reset_user_password(reset:ResetPassword, db: Session = Depends(get_db)):
+    user = db.scalar(select(User).where(User.email == reset.email))
+    if not user:
+        raise HTTPException(status_code=404,detail="No User found")
+    user.password_hash=hash_password(reset.password)
+    db.commit()
+    return {"ok":"ok"}
     

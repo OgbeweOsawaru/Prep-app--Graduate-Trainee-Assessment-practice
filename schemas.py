@@ -66,6 +66,9 @@ class LoginRequest(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
+class ResetPassword(BaseModel):
+    email:EmailStr=Field(max_length=120)
+    password:str=Field(min_length=4,max_length=120)
 # ---------- Submit ----------
 
 class SubmitRequest(BaseModel):

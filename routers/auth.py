@@ -2,7 +2,7 @@ from datetime import datetime, timedelta, timezone
 from models import Attempt as AttemptModel, AttemptQuestion,Answer
 from fastapi import APIRouter, HTTPException,Depends,status
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import select,func
 from models import User
 from database import get_db
 import config
@@ -43,7 +43,7 @@ def register(user:RegisterRequest,db: Session = Depends(get_db)):
 @router.post("/login", response_model=TokenResponse)
 def Login(user:LoginRequest,db: Session = Depends(get_db)):
     result= db.execute(
-            select(User). where(User.email==user.email),
+            select(User). where(func.lower(User.email)==user.email.lower()),
         )
     db_user=result.scalars().first()
     if not db_user:
@@ -52,7 +52,3 @@ def Login(user:LoginRequest,db: Session = Depends(get_db)):
         return TokenResponse(access_token=create_access_token(db_user.id))
     else: 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect Email or Password",)
-
-@router.get("/me", response_model=UserResponse)
-def me(current_user: User = Depends(get_current_user)):
-    return current_user

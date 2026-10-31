@@ -386,6 +386,8 @@ $("reviewBtn").onclick = showReview;
 $("backBtn").onclick = () => show("results");
 $("tabMissed").onclick = () => { tab = "missed"; renderReview(); };
 $("tabAll").onclick = () => { tab = "all"; renderReview(); };
+$("showPw").onchange = (e) => { $("password").type = e.target.checked ? "text" : "password"; };
+$("showRegPw").onchange = (e) => { $("regPassword").type = e.target.checked ? "text" : "password"; };
 document.addEventListener("keydown", (e) => {
   if (!S || $("test").hidden || e.ctrlKey || e.metaKey || e.altKey) return;
   if (e.key === "ArrowRight" && S.i < S.questions.length - 1) go(S.i + 1);

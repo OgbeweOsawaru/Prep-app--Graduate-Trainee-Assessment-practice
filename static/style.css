@@ -165,3 +165,16 @@ input:focus { border-color:var(--accent); }
 @media (prefers-reduced-motion: reduce) {
   * { transition:none !important; animation:none !important; }
 }
+.showpw {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0 16px;
+  cursor: pointer;
+}
+.showpw input {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  margin: 0;
+}
