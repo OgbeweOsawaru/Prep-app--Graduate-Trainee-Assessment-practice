@@ -367,6 +367,63 @@ function reviewCard(x) {
   return card;
 }
 
+// ---------- history ----------
+// The server may send a date with no timezone; treat those as UTC.
+function parseDate(s) {
+  return ms(/(Z|[+-]\d\d:?\d\d)$/.test(s) ? s : s + "Z");
+}
+
+function formatDate(s) {
+  const d = new Date(parseDate(s));
+  if (isNaN(d)) return "";
+  return d.toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" }) +
+    " · " + d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+}
+
+async function showHistory() {
+  show("history");
+  $("historyMsg").textContent = "";
+  $("historySummary").textContent = "Loading...";
+  $("historyList").textContent = "";
+  try {
+    const items = await api("/student/progress");
+    renderHistory(items);
+  } catch (e) {
+    $("historySummary").textContent = "";
+    if (e.status === 401) {
+      clearToken();
+      show("auth");
+      $("authMsg").textContent = "Your login expired. Log in again to continue.";
+    } else {
+      $("historyMsg").textContent = "Could not load your history. Please try again.";
+    }
+  }
+}
+
+function renderHistory(items) {
+  const list = $("historyList");
+  list.textContent = "";
+  if (!items || items.length === 0) {
+    $("historySummary").textContent = "No submitted tests yet. Finish a test and it will show up here.";
+    return;
+  }
+  $("historySummary").textContent = items.length + (items.length === 1 ? " test taken" : " tests taken");
+  items.slice().reverse().forEach((x) => { // newest first
+    const pct = x.total > 0 ? Math.round((x.score / x.total) * 100) : 0;
+    const status = pct >= 70 ? "correct" : pct >= 40 ? "skipped" : "wrong";
+    const card = el("div", "card hcard");
+    const main = el("div", "hmain");
+    main.appendChild(el("div", "htitle", x.section));
+    main.appendChild(el("div", "hmeta", formatDate(x.date)));
+    const right = el("div", "hscore");
+    right.appendChild(el("div", "htitle", x.score + " / " + x.total));
+    right.appendChild(el("span", "badge " + status, pct + "%"));
+    card.appendChild(main);
+    card.appendChild(right);
+    list.appendChild(card);
+  });
+}
+
 // ---------- wiring ----------
 $("startBtn").onclick = () => startTest();
 document.querySelectorAll(".sectionBtn").forEach((b) => {
@@ -377,6 +434,8 @@ $("registerBtn").onclick = () => authenticate(true);
 $("showRegister").onclick = (e) => { e.preventDefault(); $("authMsg").textContent = ""; show("register"); };
 $("showLogin").onclick = (e) => { e.preventDefault(); $("regMsg").textContent = ""; show("auth"); };
 $("logoutBtn").onclick = logout;
+$("historyBtn").onclick = showHistory;
+$("historyBack").onclick = () => show("start");
 $("prev").onclick = () => go(S.i - 1);
 $("next").onclick = () => go(S.i + 1);
 $("flag").onclick = toggleFlag;

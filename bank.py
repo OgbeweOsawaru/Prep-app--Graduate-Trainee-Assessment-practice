@@ -71,10 +71,12 @@ def load_bank()->list[Question]:
         load.append(row_to_question(row))
     return load"""
 if __name__ == "__main__":
-    a=load_bank()
-    print(a[0].to_public().model_dump())
-    print("answer" in a[0].to_public().model_dump())
-        
+   #print(load_questions())
+   a=load_bank()
+   print(a)
+   """print(a[0].to_public().model_dump())
+   print("answer" in a[0].to_public().model_dump())"""
+
    
 
             

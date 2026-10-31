@@ -13,6 +13,7 @@ from grader import grade
 from schemas import RegisterRequest,UserResponse,LoginRequest,TokenResponse,ResetPassword
 from security import ADMIN_KEY,hash_password
 from fastapi import Header
+from routers.student import get_score,get_progress
 
 def require_admin(x_admin_key: str | None = Header(default=None)):
     if ADMIN_KEY is None or x_admin_key != ADMIN_KEY:
@@ -85,4 +86,8 @@ def reset_user_password(reset:ResetPassword, db: Session = Depends(get_db)):
     user.password_hash=hash_password(reset.password)
     db.commit()
     return {"ok":"ok"}
-    
+
+@router.get("/student/progress")
+def progress(user_id, db: Session = Depends(get_db)):
+    attempt_answers, chosen,meta = get_progress(user_id, db)
+    return get_score(attempt_answers, chosen,meta)

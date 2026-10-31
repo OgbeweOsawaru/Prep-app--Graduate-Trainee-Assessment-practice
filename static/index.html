@@ -4,11 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Prep App</title>
-<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
 <main>
-    <section id="auth" class="view" hidden>
+  <section id="auth" class="view" hidden>
     <h1>Prep App</h1>
     <p>Log in to start.</p>
     <input id="email" type="email" placeholder="Email" autocomplete="email">
@@ -32,7 +32,7 @@
   </section>
 
   <section id="start" class="view">
-        <h1>Prep App</h1>
+    <h1>Prep App</h1>
     <p>Full test: 60 questions &middot; 60 minutes</p>
     <button id="startBtn" class="primary">Start full test</button>
     <p>Or practise one section: 10 questions &middot; 10 minutes</p>
@@ -41,6 +41,7 @@
       <button class="sectionBtn" data-section="verbal">Verbal</button>
       <button class="sectionBtn" data-section="critical">Critical</button>
     </div>
+    <button id="historyBtn">My past tests</button>
     <p>Note: This project is still a work in progress and your feedback is very useful to help make it better
       <a href="https://docs.google.com/forms/d/e/1FAIpQLSfbKBw-3xqzazBlVnErLJIHfQImOwcwwuDOfWFn7fDFrX05_A/viewform?usp=header" target="_blank" rel="noopener">Feedback form</a>
     or
@@ -94,7 +95,17 @@
     </div>
     <div id="reviewList"></div>
   </section>
+
+  <section id="history" class="view" hidden>
+    <header class="bar">
+      <button id="historyBack">&larr; Back</button>
+      <span>My past tests</span>
+    </header>
+    <p id="historySummary"></p>
+    <div id="historyList"></div>
+    <p id="historyMsg" class="msg"></p>
+  </section>
 </main>
-<script src="app.js?v=4"></script>
+<script src="app.js?v=5"></script>
 </body>
 </html>

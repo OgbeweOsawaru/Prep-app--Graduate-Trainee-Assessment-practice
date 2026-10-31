@@ -3,14 +3,16 @@
 A practice site for graduate trainee aptitude tests. It gives candidates timed practice in numerical, verbal and critical reasoning, then shows their scores and explains every answer.
 
 **Live app:** https://prep-app-tuqf.onrender.com
+
 ## What it does
 
 - **Full practice test:** 60 questions in 60 minutes, drawn from three sections: numerical, verbal and critical reasoning.
 - **Section tests:** 10 questions in 10 minutes for one section, for quick practice.
 - **Fresh questions first:** the app remembers which questions a user has already seen and picks unseen ones before repeating any.
 - **Results and review:** an overall score, a score per section, and a review screen showing missed and skipped questions with explanations.
+- **Test history:** a "My past tests" page lists every submitted test with its section, score, total and date, newest first. Tests that were started but never submitted are left out.
 - **Accounts:** register and log in. Each user has a limited number of free tests.
-- **Admin routes:** reset a user's attempts or seen questions.
+- **Admin routes:** reset a user's attempts, seen questions or password.
 
 ## How it's built
 
@@ -24,7 +26,8 @@ A practice site for graduate trainee aptitude tests. It gives candidates timed p
 
 - **The server owns the clock.** A test's deadline is calculated and stored on the server when the test starts. The browser only displays a countdown, so changing the device clock gains nothing.
 - **Answers stay on the server.** Questions are sent to the browser without their correct answers or explanations. Results are only available after submitting.
-- **Ownership checks.** Every attempt belongs to a user, and users can only submit or view their own attempts.
+- **Ownership checks.** Every attempt belongs to a user, and users can only submit or view their own attempts. The history route always uses the logged-in user, so nobody can ask for someone else's history.
+- **History is scored by question ID.** Chosen answers are matched to correct answers by question ID, not by position, so skipped questions can't shift the score.
 - **Simple deployment config.** The database address comes from a `DATABASE_URL` environment variable, so the same code runs on a laptop and on Render.
 
 ## Run it locally
@@ -50,4 +53,4 @@ Early stage and still improving. Planned next:
 
 ## Feedback
 
-Found a wrong answer or a bug? Use the feedback link inside the app.
+Found a wrong answer or a bug? Use the feedback link inside the app, or message [@HeisOgb on X](https://x.com/HeisOgb).

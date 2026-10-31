@@ -24,7 +24,7 @@ def register(user:RegisterRequest,db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists",)
     
     result= db.execute(
-        select(User). where(User.email==user.email),
+        select(User). where(func.lower(User.email)==user.email.lower()),
         )
     existing_email=result.scalars().first()
     if existing_email:

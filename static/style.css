@@ -152,6 +152,16 @@ button.primary:active:not(:disabled) { opacity:.85; }
 .rexp { margin-top:14px; padding:12px 16px; background:var(--bg); border-left:3px solid var(--accent); border-radius:8px; }
 .rexp p { margin:6px 0 0; white-space:pre-wrap; }
 
+/* history */
+#historyBtn { width:100%; margin-bottom:8px; }
+.hcard { display:flex; justify-content:space-between; align-items:center; gap:12px; }
+.hmain { min-width:0; }
+.htitle { font-weight:600; }
+.hmeta { color:var(--label-secondary); font-size:.95rem; }
+.hscore { text-align:right; flex-shrink:0; }
+.hscore .badge { display:inline-block; margin-top:4px; }
+#historySummary { color:var(--label-secondary); margin:16px 0 8px; }
+
 /* forms */
 input {
   display:block; width:100%; min-height:48px; margin:0 0 10px; padding:12px 16px;
