@@ -88,6 +88,6 @@ def reset_user_password(reset:ResetPassword, db: Session = Depends(get_db)):
     return {"ok":"ok"}
 
 @router.get("/student/progress")
-def progress(user_id, db: Session = Depends(get_db)):
+def progress(user_id:int, db: Session = Depends(get_db)):
     attempt_answers, chosen,meta = get_progress(user_id, db)
     return get_score(attempt_answers, chosen,meta)
