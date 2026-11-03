@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from models import Attempt as AttemptModel, AttemptQuestion,Answer
-from fastapi import APIRouter, HTTPException,Depends,status
+from fastapi import APIRouter, HTTPException,Depends,status,Request
 from sqlalchemy.orm import Session
 from sqlalchemy import select,func
 from models import User
@@ -12,10 +12,13 @@ from grader import grade
 from schemas import RegisterRequest,UserResponse,LoginRequest,TokenResponse
 from security import hash_password,verify_password,create_access_token
 from deps import get_current_user
+from limiter import limiter
+
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/register", response_model=UserResponse, status_code=201)
-def register(user:RegisterRequest,db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def register(request:Request,user:RegisterRequest,db: Session = Depends(get_db)):
     result= db.execute(
             select(User). where(User.username==user.username),
         )
@@ -41,7 +44,8 @@ def register(user:RegisterRequest,db: Session = Depends(get_db)):
     return new_user
 
 @router.post("/login", response_model=TokenResponse)
-def Login(user:LoginRequest,db: Session = Depends(get_db)):
+@limiter.limit("5/minute")
+def Login(request:Request,user:LoginRequest,db: Session = Depends(get_db)):
     result= db.execute(
             select(User). where(func.lower(User.email)==user.email.lower()),
         )

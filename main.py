@@ -7,10 +7,13 @@ from routers.tests import router
 from routers.auth import router as auth
 from routers.admin import router as admin
 from routers.student import router as student
+from limiter import limiter, _rate_limit_exceeded_handler, RateLimitExceeded
 
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Prep App")
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 app.include_router(router)
 app.include_router(auth)
 app.include_router(admin)
