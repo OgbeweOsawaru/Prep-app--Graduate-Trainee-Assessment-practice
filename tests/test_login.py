@@ -24,11 +24,11 @@ def test_register_account_succeeds():
     db.delete(user)
     db.commit()
 def test_register_account_fails_existing():
-    code = register("admin","admin@gmail.com", "admin")
+    code = register("testuser","testuser@gmail.com", "tester")
     assert code == 400
 
 def test_correct_login_succeeds():
-    code = login_attempt("admin@gmail.com", "admin")
+    code = login_attempt("testuser@gmail.com", "tester")
     assert code == 200
 
 def test_rate_limit_blocks_after_too_many_attempts():
