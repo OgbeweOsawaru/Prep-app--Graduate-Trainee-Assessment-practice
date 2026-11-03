@@ -62,6 +62,7 @@ function authMessage(e) {
   if (e.status === 401) return "Incorrect email or password.";
   if (e.status === 400 && typeof e.detail === "string") return e.detail;
   if (e.status === 422) return "Check your details: a username, a valid email, and a password of at least 4 characters.";
+  if (e.status === 429) return "Too many attempts. Please wait a minute and try again.";
   return "Could not reach the server. Please try again.";
 }
 
