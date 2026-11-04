@@ -53,7 +53,7 @@ class StartResponse(BaseModel):
 class RegisterRequest(BaseModel):
     username:str= Field(min_length=1, max_length=50)
     email:EmailStr=Field(max_length=120)
-    password:str=Field(min_length=4,max_length=120)
+    password:str=Field(min_length=6,max_length=120)
 class UserResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     username:str= Field(min_length=1, max_length=50)

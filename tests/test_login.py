@@ -17,18 +17,26 @@ def register(username,email, password):
     r = httpx.post("http://127.0.0.1:8000/auth/register", json=details)
     return r.status_code
 
-def test_register_account_succeeds():
+def test_register_account_fails_with_wrong_length_password():
+    code = register("tester","tester@gmail.com", "teste")
+    assert code == 422
+    user=db.scalar(select(User).where(User.username== "tester"))
+    if(user):
+        db.delete(user)
+        db.commit()
+def test_register_account_succeeds_with_proper_length():
     code = register("tester","tester@gmail.com", "tester")
     assert code == 201
     user=db.scalar(select(User).where(User.username== "tester"))
-    db.delete(user)
-    db.commit()
+    if user:
+        db.delete(user)
+        db.commit()
 def test_register_account_fails_existing():
-    code = register("testuser","testuser@gmail.com", "tester")
+    code = register("osasco","osas@gmail.com", "osasiscool")
     assert code == 400
 
 def test_correct_login_succeeds():
-    code = login_attempt("testuser@gmail.com", "tester")
+    code = login_attempt("osas@gmail.com", "osasiscool")
     assert code == 200
 
 def test_rate_limit_blocks_after_too_many_attempts():
