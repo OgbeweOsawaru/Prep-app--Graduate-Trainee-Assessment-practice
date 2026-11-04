@@ -10,6 +10,7 @@ from grader import grade
 from schemas import ResultsResponse, StartResponse, SubmitRequest, SubmitResponse
 from deps import get_current_user
 from sqlalchemy import select, func
+from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 router = APIRouter(prefix="/tests", tags=["tests"])
 
 # Loaded once, when the app starts. A broken CSV stops the app right here.
@@ -102,7 +103,11 @@ def submit_test(
             Answer(question_id=question_id, chosen=chosen)
         )
     db_attempt.submitted_at = now
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise api_error(409, "already_submitted", "This attempt was already submitted.")
     return SubmitResponse(status="submitted")
 
 @router.post("/{attempt_id}/progress")
