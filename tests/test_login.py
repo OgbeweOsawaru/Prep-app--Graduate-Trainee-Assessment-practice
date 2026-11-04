@@ -2,8 +2,59 @@ import httpx
 from models import User
 from database import SessionLocal
 from sqlalchemy import select
+from fastapi.testclient import TestClient
+from main import app
+
+client = TestClient(app)
 db=SessionLocal()
-def login_attempt(email, password):
+
+def login_attempt_Test_Client(email, password):
+    details= {"email": email,
+            "password": password
+            }
+    r=client.post("/auth/login",json=details)
+    return r.status_code
+
+def register_attempt_Test_Client(username,email, password):
+    details= {"username":username,
+        "email": email,
+            "password": password
+            }
+    r = client.post("/auth/register", json=details)
+    return r.status_code
+
+
+def test_register_account_fails_with_wrong_length_password():
+    code = register_attempt_Test_Client("tester","tester@gmail.com", "teste")
+    assert code == 422
+    user=db.scalar(select(User).where(User.username== "tester"))
+    if(user):
+        db.delete(user)
+        db.commit()
+def test_register_account_succeeds_with_proper_length():
+    code = register_attempt_Test_Client("tester","tester@gmail.com", "tester")
+    assert code == 201
+    user=db.scalar(select(User).where(User.username== "tester"))
+    if user:
+        db.delete(user)
+        db.commit()
+def test_register_account_fails_existing():
+    code = register_attempt_Test_Client("osasco","osas@gmail.com", "osasiscool")
+    assert code == 400
+
+def test_correct_login_succeeds():
+    code = login_attempt_Test_Client("osas@gmail.com", "osasiscool")
+    assert code == 200
+
+def test_rate_limit_blocks_after_too_many_attempts():
+    codes=[]
+    email = "test@gmail.com"
+    password = "wrongpassword"
+    for i in range(10):
+        trial=login_attempt_Test_Client(email,password)
+        codes.append(trial)
+    assert 429 in codes
+"""def login_attempt(email, password):
     details= {"email": email,
             "password": password
             }
@@ -48,3 +99,4 @@ def test_rate_limit_blocks_after_too_many_attempts():
         codes.append(trial)
     assert 429 in codes
 
+"""
