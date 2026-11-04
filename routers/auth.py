@@ -15,6 +15,7 @@ from deps import get_current_user
 from limiter import limiter
 
 
+
 router = APIRouter(prefix="/auth", tags=["auth"])
 @router.post("/register", response_model=UserResponse, status_code=201)
 @limiter.limit("5/minute")
@@ -53,6 +54,8 @@ def Login(request:Request,user:LoginRequest,db: Session = Depends(get_db)):
     if not db_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect Email or Password",)
     if verify_password(user.password,db_user.password_hash):
+        db_user.last_login=datetime.now(timezone.utc)
+        db.commit()
         return TokenResponse(access_token=create_access_token(db_user.id))
     else: 
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect Email or Password",)

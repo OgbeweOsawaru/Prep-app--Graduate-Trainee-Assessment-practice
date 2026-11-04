@@ -13,6 +13,13 @@ class User(Base):
     username: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     email: Mapped[str] = mapped_column(String(120), unique=True, nullable=False)
     password_hash: Mapped[str]=mapped_column(String(200),nullable=False)
+    started_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        default=lambda: datetime.now(UTC),
+    )
+    last_login: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+    )
     user_attempts: Mapped[list[Attempt]] = relationship(
             back_populates="user",
             order_by="Attempt.id",
